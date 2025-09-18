@@ -12,33 +12,6 @@ interface AuthProviderProps {
 const publicPaths = ['/login', '/register', '/forgot-password'];
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  useEffect(() => {
-    const isPublicPath = publicPaths.includes(location.pathname);
-    
-    if (!isLoading) {
-      if (!isAuthenticated && !isPublicPath) {
-        navigate('/login');
-      } else if (isAuthenticated && isPublicPath) {
-        navigate('/home');
-      }
-    }
-  }, [isAuthenticated, isLoading, location.pathname, navigate]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
+  // Authentication disabled for development
   return <>{children}</>;
 }

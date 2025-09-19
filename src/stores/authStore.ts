@@ -13,6 +13,11 @@ interface AuthState {
   refreshToken: () => Promise<void>;
   setUser: (user: User) => void;
   checkAuth: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>;
+  deleteAccount: (password: string) => Promise<void>;
+  enable2FA: () => Promise<{ qrCode: string }>;
+  verify2FA: (code: string) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -82,6 +87,61 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setUser: (user: User) => set({ user, isAuthenticated: true }),
+
+      updateProfile: async (data: Partial<User>) => {
+        set({ isLoading: true });
+        try {
+          const response = await api.patch('/auth/profile/', data);
+          set({ user: response.data, isLoading: false });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      changePassword: async (oldPassword: string, newPassword: string) => {
+        set({ isLoading: true });
+        try {
+          await api.post('/auth/change-password/', {
+            old_password: oldPassword,
+            new_password: newPassword,
+          });
+          set({ isLoading: false });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      deleteAccount: async (password: string) => {
+        set({ isLoading: true });
+        try {
+          await api.delete('/auth/delete-account/', {
+            data: { password }
+          });
+          get().logout();
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      enable2FA: async () => {
+        try {
+          const response = await api.post('/auth/2fa/enable/');
+          return response.data;
+        } catch (error) {
+          throw error;
+        }
+      },
+
+      verify2FA: async (code: string) => {
+        try {
+          await api.post('/auth/2fa/verify/', { code });
+        } catch (error) {
+          throw error;
+        }
+      },
     }),
     {
       name: 'auth-storage',

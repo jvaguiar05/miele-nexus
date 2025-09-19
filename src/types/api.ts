@@ -32,6 +32,10 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  name?: string;
+  phone?: string;
+  avatar?: string;
+  two_factor_enabled?: boolean;
   is_active: boolean;
   date_joined: string;
   last_login: string | null;

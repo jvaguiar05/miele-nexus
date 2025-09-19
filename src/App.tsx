@@ -16,6 +16,7 @@ import Home from "./pages/Home";
 import Clients from "./pages/Clients";
 import PerdComps from "./pages/PerdComps";
 import Reports from "./pages/Reports";
+import Configuration from "./pages/Configuration";
 import OTP from "./pages/OTP";
 import NotFound from "./pages/NotFound";
 
@@ -55,6 +56,7 @@ const App = () => (
               <Route path="/clients" element={<Clients />} />
               <Route path="/perdcomps" element={<PerdComps />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/configuration" element={<Configuration />} />
             </Route>
             
             {/* Root redirect */}

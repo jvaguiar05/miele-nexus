@@ -1,47 +1,72 @@
 import { useState, useEffect } from "react";
-import { FileText, Plus, Search, Filter, Download, Upload } from "lucide-react";
+import { Plus, Upload, Download, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import PerdCompTable from "@/components/perdcomps/PerdCompTable";
 import PerdCompForm from "@/components/perdcomps/PerdCompForm";
+import PerdCompDetail from "@/components/perdcomps/PerdCompDetail";
 import { usePerdCompStore } from "@/stores/perdcompStore";
 import { useClientStore } from "@/stores/clientStore";
-import { PerdComp } from "@/types/api";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+interface PerdComp {
+  id: string;
+  client_id: string;
+  numero: string;
+  imposto: string;
+  competencia: string;
+  valor_solicitado: number;
+  valor_recebido: number;
+  status: string;
+  data_transmissao?: string;
+  observacoes?: string;
+}
 
 export default function PerdCompsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedPerdComp, setSelectedPerdComp] = useState<PerdComp | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterClient, setFilterClient] = useState<string>("all");
   
-  const { perdcomps, fetchPerdComps, isLoading } = usePerdCompStore();
+  const { 
+    perdcomps, 
+    fetchPerdComps, 
+    isLoading,
+    currentPage,
+    totalPages,
+    setCurrentPage
+  } = usePerdCompStore();
   const { clients, fetchClients } = useClientStore();
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchPerdComps();
+    fetchPerdComps(currentPage);
     fetchClients();
-  }, [fetchPerdComps, fetchClients]);
+  }, [currentPage]);
 
   const handleEdit = (perdcomp: PerdComp) => {
     setSelectedPerdComp(perdcomp);
     setIsFormOpen(true);
+  };
+
+  const handleView = (perdcomp: PerdComp) => {
+    setSelectedPerdComp(perdcomp);
+    setIsDetailOpen(true);
   };
 
   const handleAdd = () => {
@@ -71,18 +96,24 @@ export default function PerdCompsPage() {
 
   const filteredPerdComps = perdcomps.filter(pc => {
     const matchesSearch = searchQuery === "" || 
-      pc.nr_perdcomp.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      pc.nome.toLowerCase().includes(searchQuery.toLowerCase());
+      pc.numero.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = filterStatus === "all" || 
-      (filterStatus === "received" && pc.recebido) ||
-      (filterStatus === "pending" && !pc.recebido);
+      (filterStatus === "approved" && pc.status === "Aprovado") ||
+      (filterStatus === "pending" && pc.status === "Pendente") ||
+      (filterStatus === "rejected" && pc.status === "Recusado");
     
     const matchesClient = filterClient === "all" || 
-      pc.client === parseInt(filterClient);
+      pc.client_id === filterClient;
     
     return matchesSearch && matchesStatus && matchesClient;
   });
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   return (
     <div className="min-h-full p-4 md:p-8 bg-gradient-to-br from-background via-background to-primary/5">
@@ -138,13 +169,13 @@ export default function PerdCompsPage() {
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
             <p className="text-sm text-muted-foreground">Pendentes</p>
             <p className="text-2xl font-bold text-yellow-600">
-              {perdcomps.filter(p => !p.recebido).length}
+              {perdcomps.filter(p => p.status === "Pendente").length}
             </p>
           </Card>
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
-            <p className="text-sm text-muted-foreground">Recebidos</p>
+            <p className="text-sm text-muted-foreground">Aprovados</p>
             <p className="text-2xl font-bold text-green-600">
-              {perdcomps.filter(p => p.recebido).length}
+              {perdcomps.filter(p => p.status === "Aprovado").length}
             </p>
           </Card>
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
@@ -153,7 +184,7 @@ export default function PerdCompsPage() {
               {new Intl.NumberFormat('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
-              }).format(perdcomps.reduce((acc, p) => acc + p.valor_pedido, 0))}
+              }).format(perdcomps.reduce((acc, p) => acc + p.valor_solicitado, 0))}
             </p>
           </Card>
         </div>
@@ -206,6 +237,7 @@ export default function PerdCompsPage() {
             <PerdCompTable 
               perdcomps={filteredPerdComps}
               onEdit={handleEdit}
+              onView={handleView}
             />
           )}
         </Card>
@@ -224,6 +256,22 @@ export default function PerdCompsPage() {
             onSuccess={handleFormSuccess}
             onCancel={() => setIsFormOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-2xl">
+          {selectedPerdComp && (
+            <PerdCompDetail
+              perdcompId={selectedPerdComp.id}
+              onEdit={() => {
+                setIsDetailOpen(false);
+                setIsFormOpen(true);
+              }}
+              onBack={() => setIsDetailOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

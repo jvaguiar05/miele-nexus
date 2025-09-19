@@ -8,18 +8,47 @@ import { useClientStore } from "@/stores/clientStore";
 import { useToast } from "@/hooks/use-toast";
 import ClientTable from "@/components/clients/ClientTable";
 import ClientForm from "@/components/clients/ClientForm";
+import ClientDetail from "@/components/clients/ClientDetail";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+
+interface Client {
+  id: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia: string;
+  tipo_empresa: string;
+  email_contato?: string;
+  telefone_contato?: string;
+  recuperacao_judicial?: boolean;
+}
 
 export default function Clients() {
-  const { fetchClients, isLoading, error, searchClients } = useClientStore();
+  const { 
+    fetchClients, 
+    isLoading, 
+    error, 
+    searchClients,
+    currentPage,
+    totalPages,
+    setCurrentPage
+  } = useClientStore();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   useEffect(() => {
-    fetchClients();
-  }, [fetchClients]);
+    fetchClients(currentPage);
+  }, [currentPage]);
 
   useEffect(() => {
     if (error) {
@@ -35,13 +64,29 @@ export default function Clients() {
     if (searchQuery.trim()) {
       await searchClients(searchQuery);
     } else {
-      await fetchClients();
+      await fetchClients(currentPage);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSearch();
+    }
+  };
+
+  const handleView = (client: Client) => {
+    setSelectedClient(client);
+    setIsDetailOpen(true);
+  };
+
+  const handleEdit = (client: Client) => {
+    setSelectedClient(client);
+    setIsFormOpen(true);
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -117,27 +162,60 @@ export default function Clients() {
           </Card>
         </motion.div>
 
-        {/* Clients Table */}
+        {/* Clients Table with scroll */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Card className="border-border/50 bg-card/50 backdrop-blur">
-            {isLoading ? (
-              <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : (
-              <ClientTable
-                onEdit={(client) => {
-                  setSelectedClient(client);
-                  setIsFormOpen(true);
-                }}
-              />
-            )}
+            <div className="max-h-[400px] overflow-y-auto">
+              {isLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <ClientTable
+                  onEdit={handleEdit}
+                  onView={handleView}
+                />
+              )}
+            </div>
           </Card>
         </motion.div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mt-6">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious 
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, i) => (
+                  <PaginationItem key={i + 1}>
+                    <PaginationLink
+                      onClick={() => handlePageChange(i + 1)}
+                      isActive={currentPage === i + 1}
+                      className="cursor-pointer"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext 
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
 
         {/* Client Form Dialog */}
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
@@ -151,10 +229,30 @@ export default function Clients() {
               client={selectedClient}
               onSuccess={() => {
                 setIsFormOpen(false);
-                fetchClients();
+                fetchClients(currentPage);
               }}
               onCancel={() => setIsFormOpen(false)}
             />
+          </DialogContent>
+        </Dialog>
+
+        {/* Client Detail Dialog */}
+        <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            {selectedClient && (
+              <ClientDetail
+                clientId={selectedClient.id}
+                onEdit={() => {
+                  setIsDetailOpen(false);
+                  setIsFormOpen(true);
+                }}
+                onBack={() => setIsDetailOpen(false)}
+                onAddPerdComp={() => {
+                  // Navigation to PerdComps page with client pre-selected will be handled later
+                  setIsDetailOpen(false);
+                }}
+              />
+            )}
           </DialogContent>
         </Dialog>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Shield, ArrowLeft, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
 
 export default function OTPPage() {
@@ -75,6 +76,7 @@ export default function OTPPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center px-4">
+      <ThemeToggle variant="auth" />
       <div className="w-full max-w-md space-y-8">
         {/* Header */}
         <div className="text-center space-y-4">

@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, LogOut, User, Settings } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,29 +9,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuthStore } from "@/stores/authStore";
 import { useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
 
 export default function Header() {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark');
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('theme', newTheme);
-    document.documentElement.classList.toggle('dark', newTheme === 'dark');
-  };
 
   const handleLogout = () => {
     logout();
@@ -66,15 +50,7 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-          >
-            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
+          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

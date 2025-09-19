@@ -8,6 +8,7 @@ import { LogIn, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -54,6 +55,7 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
+      <ThemeToggle variant="auth" />
       {/* Left side - Login Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <motion.div

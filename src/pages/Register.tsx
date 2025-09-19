@@ -7,6 +7,7 @@ import { UserPlus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useToast } from "@/hooks/use-toast";
 import api from "@/lib/api";
 
@@ -57,6 +58,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-background via-background to-primary/5">
+      <ThemeToggle variant="auth" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

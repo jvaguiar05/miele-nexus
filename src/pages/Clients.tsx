@@ -261,7 +261,7 @@ export default function Clients() {
                 }}
                 onBack={() => setIsDetailOpen(false)}
                 onAddPerdComp={() => {
-                  // Navigation to PerdComps page with client pre-selected will be handled later
+                  navigate(`/perdcomps?newWithClient=${selectedClient.id}`);
                   setIsDetailOpen(false);
                 }}
               />

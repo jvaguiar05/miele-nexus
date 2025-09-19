@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { Plus, Upload, Download, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,9 +39,11 @@ interface PerdComp {
 export default function PerdCompsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedPerdComp, setSelectedPerdComp] = useState<PerdComp | null>(null);
+  const [preSelectedClientId, setPreSelectedClientId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [filterClient, setFilterClient] = useState<string>("all");
@@ -64,9 +66,18 @@ export default function PerdCompsPage() {
       setIsDetailOpen(true);
     } else {
       fetchPerdComps(currentPage);
+      
+      // Check if we need to open the form with a pre-selected client
+      const newWithClient = searchParams.get('newWithClient');
+      if (newWithClient) {
+        setPreSelectedClientId(newWithClient);
+        setIsFormOpen(true);
+        // Clear the search param after handling it
+        setSearchParams({});
+      }
     }
     fetchClients();
-  }, [currentPage, id]);
+  }, [currentPage, id, searchParams]);
 
   const handleEdit = (perdcomp: PerdComp) => {
     setSelectedPerdComp(perdcomp);
@@ -85,6 +96,7 @@ export default function PerdCompsPage() {
   const handleFormSuccess = () => {
     setIsFormOpen(false);
     setSelectedPerdComp(null);
+    setPreSelectedClientId(null);
     fetchPerdComps();
   };
 
@@ -261,8 +273,12 @@ export default function PerdCompsPage() {
           </DialogHeader>
           <PerdCompForm
             perdcomp={selectedPerdComp}
+            clientId={preSelectedClientId || undefined}
             onSuccess={handleFormSuccess}
-            onCancel={() => setIsFormOpen(false)}
+            onCancel={() => {
+              setIsFormOpen(false);
+              setPreSelectedClientId(null);
+            }}
           />
         </DialogContent>
       </Dialog>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Settings, 
+  Settings as SettingsIcon, 
   Monitor, 
   Bell, 
   Database,
@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useTheme } from "@/components/providers/theme-provider";
 
-export default function Configuration() {
+export default function Settings() {
   const { toast } = useToast();
   const { theme, setTheme } = useTheme();
   
@@ -76,7 +76,7 @@ export default function Configuration() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 rounded-lg bg-primary/10">
-            <Settings className="h-6 w-6 text-primary" />
+            <SettingsIcon className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h1 className="text-3xl font-bold text-foreground">Configurações</h1>

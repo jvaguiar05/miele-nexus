@@ -33,7 +33,7 @@ const navigationCards = [
     title: "Configurações",
     description: "Ajuste as configurações do sistema",
     icon: Settings,
-    href: "/settings",
+    href: "/configuration",
     color: "from-orange-500 to-orange-600",
     stats: "Personalizar"
   }

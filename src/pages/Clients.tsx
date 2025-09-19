@@ -203,17 +203,34 @@ export default function Clients() {
                     className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                   />
                 </PaginationItem>
-                {[...Array(totalPages)].map((_, i) => (
-                  <PaginationItem key={i + 1}>
-                    <PaginationLink
-                      onClick={() => handlePageChange(i + 1)}
-                      isActive={currentPage === i + 1}
-                      className="cursor-pointer"
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
+                
+                {[...Array(totalPages)].map((_, i) => {
+                  const page = i + 1;
+                  if (
+                    page === 1 ||
+                    page === totalPages ||
+                    (page >= currentPage - 1 && page <= currentPage + 1)
+                  ) {
+                    return (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => handlePageChange(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    );
+                  } else if (
+                    page === currentPage - 2 ||
+                    page === currentPage + 2
+                  ) {
+                    return <span key={page} className="px-1">...</span>;
+                  }
+                  return null;
+                })}
+                
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => handlePageChange(currentPage + 1)}

@@ -5,6 +5,7 @@ import { Users, Search, Plus, Filter, Download, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useClientStore } from "@/stores/clientStore";
 import { useToast } from "@/hooks/use-toast";
 import ClientTable from "@/components/clients/ClientTable";
@@ -177,7 +178,7 @@ export default function Clients() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <Card className="border-border/50 bg-card/50 backdrop-blur">
-            <div className="max-h-[400px] overflow-y-auto">
+            <ScrollArea className="h-[400px]">
               {isLoading ? (
                 <div className="flex justify-center items-center py-12">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -188,7 +189,7 @@ export default function Clients() {
                   onView={handleView}
                 />
               )}
-            </div>
+            </ScrollArea>
           </Card>
         </motion.div>
 

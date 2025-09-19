@@ -56,7 +56,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-background via-primary/5 to-background">
+    <div className="min-h-screen flex items-center justify-center p-8 bg-gradient-to-br from-background via-background to-primary/5">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,12 +72,12 @@ export default function Register() {
           Voltar ao login
         </Button>
 
-        <div className="bg-card rounded-2xl shadow-xl p-8 space-y-6">
+        <div className="bg-card border rounded-2xl shadow-xl p-8 space-y-6">
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 mb-4 shadow-lg">
               <UserPlus className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">Criar conta</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Criar conta</h2>
             <p className="text-muted-foreground mt-2">
               Preencha os dados abaixo para criar sua conta
             </p>

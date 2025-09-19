@@ -63,10 +63,10 @@ export default function Login() {
           className="w-full max-w-md space-y-8"
         >
           <div className="text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 mb-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary/80 mb-4 shadow-lg">
               <span className="text-3xl font-bold text-primary-foreground">M</span>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">Bem-vindo de volta</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-foreground">Bem-vindo de volta</h2>
             <p className="text-muted-foreground mt-2">
               Entre com suas credenciais para acessar o sistema
             </p>
@@ -104,17 +104,17 @@ export default function Login() {
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center">
+              <div className="flex items-center space-x-2">
                 <input
                   id="remember"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-input bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                 />
-                <label htmlFor="remember" className="ml-2 text-sm text-muted-foreground">
+                <Label htmlFor="remember" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                   Lembrar-me
-                </label>
+                </Label>
               </div>
               <Link
                 to="/forgot-password"
@@ -162,10 +162,10 @@ export default function Login() {
           transition={{ duration: 0.7, delay: 0.2 }}
           className="text-center space-y-6"
         >
-          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/60">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-gradient-to-br from-primary to-primary/60 shadow-2xl">
             <Sparkles className="w-12 h-12 text-primary-foreground" />
           </div>
-          <h3 className="text-4xl font-bold">Miele</h3>
+          <h3 className="text-4xl font-bold text-foreground">Miele</h3>
           <p className="text-lg text-muted-foreground max-w-md">
             Sistema completo de gestão empresarial para controle de clientes, PER/DCOMP e relatórios
           </p>

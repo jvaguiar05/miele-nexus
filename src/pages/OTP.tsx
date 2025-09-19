@@ -160,7 +160,7 @@ export default function OTPPage() {
         </div>
 
         {/* Security Notice */}
-        <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+        <div className="bg-muted/50 border rounded-lg p-4 space-y-2">
           <div className="flex items-center gap-2">
             <Shield className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium">Dica de Segurança</span>

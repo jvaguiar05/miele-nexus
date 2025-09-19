@@ -49,6 +49,8 @@ const App = () => (
             <Route element={<AppLayout />}>
               <Route path="/home" element={<Home />} />
               <Route path="/clients" element={<Clients />} />
+              <Route path="/perdcomps" element={<PerdComps />} />
+              <Route path="/reports" element={<Reports />} />
             </Route>
             
             {/* Root redirect */}

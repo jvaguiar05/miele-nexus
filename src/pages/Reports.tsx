@@ -3,7 +3,7 @@ import { FileText, Download, Calendar, TrendingUp, DollarSign, Users } from "luc
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
+
 import { useToast } from "@/hooks/use-toast";
 
 export default function ReportsPage() {

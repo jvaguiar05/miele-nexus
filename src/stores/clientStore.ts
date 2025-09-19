@@ -1,6 +1,37 @@
 import { create } from 'zustand';
-import api from '@/lib/api';
-import { Client } from '@/types/api';
+import { supabase } from '@/integrations/supabase/client';
+
+// Client interface matching Supabase table
+interface Client {
+  id: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia: string;
+  tipo_empresa: string;
+  quadro_societario?: string;
+  cargo?: string;
+  telefone_contato?: string;
+  email_contato?: string;
+  responsavel_financeiro?: string;
+  telefone_comercial?: string;
+  email_comercial?: string;
+  site?: string;
+  cnae?: string;
+  regime_tributario?: string;
+  recuperacao_judicial?: boolean;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  municipio?: string;
+  uf?: string;
+  cep?: string;
+  atividades?: string;
+  anotacoes_anteriores?: string;
+  nova_anotacao?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 
 interface ClientState {
   clients: Client[];
@@ -10,10 +41,10 @@ interface ClientState {
   
   // Actions
   fetchClients: () => Promise<void>;
-  fetchClientById: (id: number) => Promise<Client>;
+  fetchClientById: (id: string) => Promise<Client>;
   createClient: (clientData: Partial<Client>) => Promise<Client>;
-  updateClient: (id: number, clientData: Partial<Client>) => Promise<Client>;
-  deleteClient: (id: number) => Promise<void>;
+  updateClient: (id: string, clientData: Partial<Client>) => Promise<Client>;
+  deleteClient: (id: string) => Promise<void>;
   setSelectedClient: (client: Client | null) => void;
   searchClients: (query: string) => Promise<void>;
 }
@@ -27,22 +58,32 @@ export const useClientStore = create<ClientState>((set, get) => ({
   fetchClients: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await api.get('/clients/');
-      set({ clients: response.data.results || response.data, isLoading: false });
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .order('razao_social', { ascending: true });
+      
+      if (error) throw error;
+      set({ clients: data || [], isLoading: false });
     } catch (error) {
-      set({ error: 'Failed to fetch clients', isLoading: false });
+      set({ error: 'Falha ao buscar clientes', isLoading: false });
     }
   },
 
-  fetchClientById: async (id: number) => {
+  fetchClientById: async (id: string) => {
     set({ isLoading: true });
     try {
-      const response = await api.get(`/clients/${id}/`);
-      const client = response.data;
-      set({ selectedClient: client, isLoading: false });
-      return client;
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (error) throw error;
+      set({ selectedClient: data, isLoading: false });
+      return data;
     } catch (error) {
-      set({ error: 'Failed to fetch client', isLoading: false });
+      set({ error: 'Falha ao buscar cliente', isLoading: false });
       throw error;
     }
   },
@@ -50,15 +91,21 @@ export const useClientStore = create<ClientState>((set, get) => ({
   createClient: async (clientData) => {
     set({ isLoading: true });
     try {
-      const response = await api.post('/clients/', clientData);
-      const newClient = response.data;
+      const { data, error } = await supabase
+        .from('clients')
+        .insert(clientData as any)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       set(state => ({ 
-        clients: [...state.clients, newClient],
+        clients: [...state.clients, data],
         isLoading: false 
       }));
-      return newClient;
+      return data;
     } catch (error) {
-      set({ error: 'Failed to create client', isLoading: false });
+      set({ error: 'Falha ao criar cliente', isLoading: false });
       throw error;
     }
   },
@@ -66,18 +113,25 @@ export const useClientStore = create<ClientState>((set, get) => ({
   updateClient: async (id, clientData) => {
     set({ isLoading: true });
     try {
-      const response = await api.put(`/clients/${id}/`, clientData);
-      const updatedClient = response.data;
+      const { data, error } = await supabase
+        .from('clients')
+        .update(clientData)
+        .eq('id', id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      
       set(state => ({
         clients: state.clients.map(client => 
-          client.id === id ? updatedClient : client
+          client.id === id ? data : client
         ),
-        selectedClient: state.selectedClient?.id === id ? updatedClient : state.selectedClient,
+        selectedClient: state.selectedClient?.id === id ? data : state.selectedClient,
         isLoading: false
       }));
-      return updatedClient;
+      return data;
     } catch (error) {
-      set({ error: 'Failed to update client', isLoading: false });
+      set({ error: 'Falha ao atualizar cliente', isLoading: false });
       throw error;
     }
   },
@@ -85,14 +139,20 @@ export const useClientStore = create<ClientState>((set, get) => ({
   deleteClient: async (id) => {
     set({ isLoading: true });
     try {
-      await api.delete(`/clients/${id}/`);
+      const { error } = await supabase
+        .from('clients')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
       set(state => ({
         clients: state.clients.filter(client => client.id !== id),
         selectedClient: state.selectedClient?.id === id ? null : state.selectedClient,
         isLoading: false
       }));
     } catch (error) {
-      set({ error: 'Failed to delete client', isLoading: false });
+      set({ error: 'Falha ao deletar cliente', isLoading: false });
       throw error;
     }
   },
@@ -102,10 +162,16 @@ export const useClientStore = create<ClientState>((set, get) => ({
   searchClients: async (query) => {
     set({ isLoading: true });
     try {
-      const response = await api.get(`/clients/?search=${encodeURIComponent(query)}`);
-      set({ clients: response.data.results || response.data, isLoading: false });
+      const { data, error } = await supabase
+        .from('clients')
+        .select('*')
+        .or(`cnpj.ilike.%${query}%,razao_social.ilike.%${query}%,nome_fantasia.ilike.%${query}%`)
+        .order('razao_social', { ascending: true });
+      
+      if (error) throw error;
+      set({ clients: data || [], isLoading: false });
     } catch (error) {
-      set({ error: 'Search failed', isLoading: false });
+      set({ error: 'Falha na busca', isLoading: false });
     }
   },
 }));

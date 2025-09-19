@@ -9,8 +9,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useClientStore } from "@/stores/clientStore";
 import { useToast } from "@/hooks/use-toast";
-import { Client } from "@/types/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+interface Client {
+  id?: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia?: string;
+  tipo_empresa: string;
+  quadro_societario?: string;
+  cargo?: string;
+  telefone_contato?: string;
+  email_contato?: string;
+  responsavel_financeiro?: string;
+  telefone_comercial?: string;
+  email_comercial?: string;
+  site?: string;
+  cnae?: string;
+  regime_tributario?: string;
+  recuperacao_judicial?: boolean;
+  logradouro?: string;
+  numero?: string;
+  complemento?: string;
+  bairro?: string;
+  municipio?: string;
+  uf?: string;
+  cep?: string;
+  atividades?: string;
+  anotacoes_anteriores?: string;
+  nova_anotacao?: string;
+}
 
 const clientSchema = z.object({
   cnpj: z.string().min(14, "CNPJ inválido"),
@@ -67,7 +95,7 @@ export default function ClientForm({ client, onSuccess, onCancel }: ClientFormPr
 
   const onSubmit = async (data: ClientFormData) => {
     try {
-      if (client) {
+      if (client?.id) {
         await updateClient(client.id, data);
         toast({
           title: "Cliente atualizado",

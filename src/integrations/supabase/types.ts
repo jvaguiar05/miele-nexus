@@ -14,7 +14,99 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          anotacoes_anteriores: string | null
+          atividades: string | null
+          bairro: string | null
+          cargo: string | null
+          cep: string | null
+          cnae: string | null
+          cnpj: string
+          complemento: string | null
+          created_at: string
+          email_comercial: string | null
+          email_contato: string | null
+          id: string
+          logradouro: string | null
+          municipio: string | null
+          nome_fantasia: string
+          nova_anotacao: string | null
+          numero: string | null
+          quadro_societario: string | null
+          razao_social: string
+          recuperacao_judicial: boolean | null
+          regime_tributario: string | null
+          responsavel_financeiro: string | null
+          site: string | null
+          telefone_comercial: string | null
+          telefone_contato: string | null
+          tipo_empresa: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          anotacoes_anteriores?: string | null
+          atividades?: string | null
+          bairro?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cnae?: string | null
+          cnpj: string
+          complemento?: string | null
+          created_at?: string
+          email_comercial?: string | null
+          email_contato?: string | null
+          id?: string
+          logradouro?: string | null
+          municipio?: string | null
+          nome_fantasia: string
+          nova_anotacao?: string | null
+          numero?: string | null
+          quadro_societario?: string | null
+          razao_social: string
+          recuperacao_judicial?: boolean | null
+          regime_tributario?: string | null
+          responsavel_financeiro?: string | null
+          site?: string | null
+          telefone_comercial?: string | null
+          telefone_contato?: string | null
+          tipo_empresa?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          anotacoes_anteriores?: string | null
+          atividades?: string | null
+          bairro?: string | null
+          cargo?: string | null
+          cep?: string | null
+          cnae?: string | null
+          cnpj?: string
+          complemento?: string | null
+          created_at?: string
+          email_comercial?: string | null
+          email_contato?: string | null
+          id?: string
+          logradouro?: string | null
+          municipio?: string | null
+          nome_fantasia?: string
+          nova_anotacao?: string | null
+          numero?: string | null
+          quadro_societario?: string | null
+          razao_social?: string
+          recuperacao_judicial?: boolean | null
+          regime_tributario?: string | null
+          responsavel_financeiro?: string | null
+          site?: string | null
+          telefone_comercial?: string | null
+          telefone_contato?: string | null
+          tipo_empresa?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

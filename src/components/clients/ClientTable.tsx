@@ -15,8 +15,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useClientStore } from "@/stores/clientStore";
-import { Client } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
+
+interface Client {
+  id: string;
+  cnpj: string;
+  razao_social: string;
+  nome_fantasia: string;
+  tipo_empresa: string;
+  email_contato?: string;
+  telefone_contato?: string;
+  recuperacao_judicial?: boolean;
+}
 
 interface ClientTableProps {
   onEdit: (client: Client) => void;
@@ -25,7 +35,7 @@ interface ClientTableProps {
 export default function ClientTable({ onEdit }: ClientTableProps) {
   const { clients, deleteClient } = useClientStore();
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Tem certeza que deseja excluir este cliente?")) {
       await deleteClient(id);
     }
@@ -68,8 +78,8 @@ export default function ClientTable({ onEdit }: ClientTableProps) {
                 <TableCell>
                   <Badge variant="outline">{client.tipo_empresa}</Badge>
                 </TableCell>
-                <TableCell>{client.email_contato}</TableCell>
-                <TableCell>{client.telefone_contato}</TableCell>
+                <TableCell>{client.email_contato || "-"}</TableCell>
+                <TableCell>{client.telefone_contato || "-"}</TableCell>
                 <TableCell>
                   <Badge 
                     variant={client.recuperacao_judicial ? "destructive" : "default"}

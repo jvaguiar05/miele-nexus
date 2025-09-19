@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Upload, Download, Filter, Search } from "lucide-react";
+import { Plus, Upload, Download, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -169,13 +169,13 @@ export default function PerdCompsPage() {
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
             <p className="text-sm text-muted-foreground">Pendentes</p>
             <p className="text-2xl font-bold text-yellow-600">
-              {perdcomps.filter(p => !p.recebido).length}
+              {perdcomps.filter(p => p.status === "Pendente").length}
             </p>
           </Card>
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
-            <p className="text-sm text-muted-foreground">Recebidos</p>
+            <p className="text-sm text-muted-foreground">Aprovados</p>
             <p className="text-2xl font-bold text-green-600">
-              {perdcomps.filter(p => p.recebido).length}
+              {perdcomps.filter(p => p.status === "Aprovado").length}
             </p>
           </Card>
           <Card className="p-4 bg-card/50 backdrop-blur border-primary/10">
@@ -184,7 +184,7 @@ export default function PerdCompsPage() {
               {new Intl.NumberFormat('pt-BR', { 
                 style: 'currency', 
                 currency: 'BRL' 
-              }).format(perdcomps.reduce((acc, p) => acc + p.valor_pedido, 0))}
+              }).format(perdcomps.reduce((acc, p) => acc + p.valor_solicitado, 0))}
             </p>
           </Card>
         </div>
@@ -237,6 +237,7 @@ export default function PerdCompsPage() {
             <PerdCompTable 
               perdcomps={filteredPerdComps}
               onEdit={handleEdit}
+              onView={handleView}
             />
           )}
         </Card>
@@ -255,6 +256,22 @@ export default function PerdCompsPage() {
             onSuccess={handleFormSuccess}
             onCancel={() => setIsFormOpen(false)}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Detail Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-2xl">
+          {selectedPerdComp && (
+            <PerdCompDetail
+              perdcompId={selectedPerdComp.id}
+              onEdit={() => {
+                setIsDetailOpen(false);
+                setIsFormOpen(true);
+              }}
+              onBack={() => setIsDetailOpen(false)}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

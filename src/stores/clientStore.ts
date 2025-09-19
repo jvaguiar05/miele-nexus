@@ -38,15 +38,20 @@ interface ClientState {
   selectedClient: Client | null;
   isLoading: boolean;
   error: string | null;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  totalCount: number;
   
   // Actions
-  fetchClients: () => Promise<void>;
+  fetchClients: (page?: number) => Promise<void>;
   fetchClientById: (id: string) => Promise<Client>;
   createClient: (clientData: Partial<Client>) => Promise<Client>;
   updateClient: (id: string, clientData: Partial<Client>) => Promise<Client>;
   deleteClient: (id: string) => Promise<void>;
   setSelectedClient: (client: Client | null) => void;
   searchClients: (query: string) => Promise<void>;
+  setCurrentPage: (page: number) => void;
 }
 
 export const useClientStore = create<ClientState>((set, get) => ({
@@ -54,17 +59,33 @@ export const useClientStore = create<ClientState>((set, get) => ({
   selectedClient: null,
   isLoading: false,
   error: null,
+  currentPage: 1,
+  totalPages: 1,
+  pageSize: 10,
+  totalCount: 0,
 
-  fetchClients: async () => {
+  fetchClients: async (page = 1) => {
     set({ isLoading: true, error: null });
     try {
-      const { data, error } = await supabase
+      const pageSize = get().pageSize;
+      const from = (page - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      const { data, error, count } = await supabase
         .from('clients')
-        .select('*')
-        .order('razao_social', { ascending: true });
+        .select('*', { count: 'exact' })
+        .order('razao_social', { ascending: true })
+        .range(from, to);
       
       if (error) throw error;
-      set({ clients: data || [], isLoading: false });
+      
+      set({ 
+        clients: data || [], 
+        totalCount: count || 0,
+        totalPages: Math.ceil((count || 0) / pageSize),
+        currentPage: page,
+        isLoading: false 
+      });
     } catch (error) {
       set({ error: 'Falha ao buscar clientes', isLoading: false });
     }
@@ -174,4 +195,6 @@ export const useClientStore = create<ClientState>((set, get) => ({
       set({ error: 'Falha na busca', isLoading: false });
     }
   },
+
+  setCurrentPage: (page) => set({ currentPage: page }),
 }));

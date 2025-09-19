@@ -1,189 +1,133 @@
 import { create } from 'zustand';
-import { supabase } from '@/integrations/supabase/client';
-
-// PerdComp interface matching Supabase table
-interface PerdComp {
-  id: string;
-  client_id: string;
-  numero: string;
-  imposto: string;
-  competencia: string;
-  valor_solicitado: number;
-  valor_recebido: number;
-  status: string;
-  data_transmissao?: string;
-  observacoes?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import api from '@/lib/api';
+import { PerdComp } from '@/types/api';
 
 interface PerdCompState {
   perdcomps: PerdComp[];
-  clientPerdComps: PerdComp[];
   selectedPerdComp: PerdComp | null;
   isLoading: boolean;
   error: string | null;
-  currentPage: number;
-  totalPages: number;
-  pageSize: number;
-  totalCount: number;
   
   // Actions
-  fetchPerdComps: (page?: number) => Promise<void>;
-  fetchPerdCompById: (id: string) => Promise<PerdComp>;
-  fetchPerdCompsByClient: (clientId: string) => Promise<void>;
-  createPerdComp: (perdcompData: Partial<PerdComp>) => Promise<PerdComp>;
-  updatePerdComp: (id: string, perdcompData: Partial<PerdComp>) => Promise<PerdComp>;
-  deletePerdComp: (id: string) => Promise<void>;
+  fetchPerdComps: () => Promise<void>;
+  fetchPerdCompById: (id: number) => Promise<PerdComp>;
+  createPerdComp: (data: Partial<PerdComp>) => Promise<PerdComp>;
+  updatePerdComp: (id: number, data: Partial<PerdComp>) => Promise<PerdComp>;
+  deletePerdComp: (id: number) => Promise<void>;
   setSelectedPerdComp: (perdcomp: PerdComp | null) => void;
   searchPerdComps: (query: string) => Promise<void>;
-  setCurrentPage: (page: number) => void;
 }
 
 export const usePerdCompStore = create<PerdCompState>((set, get) => ({
   perdcomps: [],
-  clientPerdComps: [],
   selectedPerdComp: null,
   isLoading: false,
   error: null,
-  currentPage: 1,
-  totalPages: 1,
-  pageSize: 10,
-  totalCount: 0,
 
-  fetchPerdComps: async (page = 1) => {
+  fetchPerdComps: async () => {
     set({ isLoading: true, error: null });
     try {
-      const pageSize = get().pageSize;
-      const from = (page - 1) * pageSize;
-      const to = from + pageSize - 1;
-
-      const { data, error, count } = await supabase
-        .from('perdcomps')
-        .select('*', { count: 'exact' })
-        .order('created_at', { ascending: false })
-        .range(from, to);
-      
-      if (error) throw error;
-      
-      set({ 
-        perdcomps: data || [], 
-        totalCount: count || 0,
-        totalPages: Math.ceil((count || 0) / pageSize),
-        currentPage: page,
-        isLoading: false 
-      });
+      // Mock data for now
+      const mockData: PerdComp[] = [
+        {
+          id: 1,
+          client: 1,
+          numero: "001/2024",
+          nome: "Restituição IRPJ",
+          nr_perdcomp: "PER2024001",
+          data_transmissao: "2024-01-15",
+          data_vencimento: "2024-12-31",
+          tributo_pedido: "IRPJ",
+          competencia: "2023",
+          valor_pedido: 150000.00,
+          valor_compensado: 100000.00,
+          valor_recebido: 50000.00,
+          valor_saldo: 0,
+          valor_selic: 5000.00,
+          recebido: true,
+          data_recebimento: "2024-03-15",
+          anotacoes: "Processo concluído com sucesso",
+          created_at: "2024-01-15T10:00:00Z",
+          updated_at: "2024-03-15T14:30:00Z"
+        },
+        {
+          id: 2,
+          client: 2,
+          numero: "002/2024",
+          nome: "Compensação PIS/COFINS",
+          nr_perdcomp: "DCOMP2024002",
+          data_transmissao: "2024-02-20",
+          data_vencimento: "2024-12-31",
+          tributo_pedido: "PIS/COFINS",
+          competencia: "2023",
+          valor_pedido: 75000.00,
+          valor_compensado: 75000.00,
+          valor_recebido: 0,
+          valor_saldo: 0,
+          valor_selic: 2500.00,
+          recebido: false,
+          data_recebimento: null,
+          anotacoes: "Aguardando análise da RFB",
+          created_at: "2024-02-20T09:00:00Z",
+          updated_at: "2024-02-20T09:00:00Z"
+        },
+        {
+          id: 3,
+          client: 1,
+          numero: "003/2024",
+          nome: "Restituição CSLL",
+          nr_perdcomp: "PER2024003",
+          data_transmissao: "2024-03-01",
+          data_vencimento: "2024-12-31",
+          tributo_pedido: "CSLL",
+          competencia: "2023",
+          valor_pedido: 45000.00,
+          valor_compensado: 0,
+          valor_recebido: 0,
+          valor_saldo: 45000.00,
+          valor_selic: 1200.00,
+          recebido: false,
+          data_recebimento: null,
+          anotacoes: "Em processamento",
+          created_at: "2024-03-01T11:00:00Z",
+          updated_at: "2024-03-01T11:00:00Z"
+        }
+      ];
+      set({ perdcomps: mockData, isLoading: false });
     } catch (error) {
-      set({ error: 'Falha ao buscar PER/DCOMPs', isLoading: false });
+      set({ error: 'Failed to fetch PER/DCOMPs', isLoading: false });
     }
   },
 
-  fetchPerdCompById: async (id: string) => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('perdcomps')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (error) throw error;
-      set({ selectedPerdComp: data, isLoading: false });
-      return data;
-    } catch (error) {
-      set({ error: 'Falha ao buscar PER/DCOMP', isLoading: false });
-      throw error;
-    }
+  fetchPerdCompById: async (id: number) => {
+    const response = await api.get(`/perdcomps/${id}/`);
+    return response.data;
   },
 
-  fetchPerdCompsByClient: async (clientId: string) => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('perdcomps')
-        .select('*')
-        .eq('client_id', clientId)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      set({ clientPerdComps: data || [], isLoading: false });
-    } catch (error) {
-      set({ error: 'Falha ao buscar PER/DCOMPs do cliente', isLoading: false });
-    }
+  createPerdComp: async (data) => {
+    const response = await api.post('/perdcomps/', data);
+    const newPerdComp = response.data;
+    set(state => ({ perdcomps: [...state.perdcomps, newPerdComp] }));
+    return newPerdComp;
   },
 
-  createPerdComp: async (perdcompData) => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('perdcomps')
-        .insert(perdcompData as any)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      set(state => ({ 
-        perdcomps: [data, ...state.perdcomps],
-        clientPerdComps: perdcompData.client_id ? [data, ...state.clientPerdComps] : state.clientPerdComps,
-        isLoading: false 
-      }));
-      return data;
-    } catch (error) {
-      set({ error: 'Falha ao criar PER/DCOMP', isLoading: false });
-      throw error;
-    }
-  },
-
-  updatePerdComp: async (id, perdcompData) => {
-    set({ isLoading: true });
-    try {
-      const { data, error } = await supabase
-        .from('perdcomps')
-        .update(perdcompData)
-        .eq('id', id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      
-      set(state => ({
-        perdcomps: state.perdcomps.map(pc => 
-          pc.id === id ? data : pc
-        ),
-        clientPerdComps: state.clientPerdComps.map(pc =>
-          pc.id === id ? data : pc
-        ),
-        selectedPerdComp: state.selectedPerdComp?.id === id ? data : state.selectedPerdComp,
-        isLoading: false
-      }));
-      return data;
-    } catch (error) {
-      set({ error: 'Falha ao atualizar PER/DCOMP', isLoading: false });
-      throw error;
-    }
+  updatePerdComp: async (id, data) => {
+    const response = await api.put(`/perdcomps/${id}/`, data);
+    const updatedPerdComp = response.data;
+    set(state => ({
+      perdcomps: state.perdcomps.map(pc => 
+        pc.id === id ? updatedPerdComp : pc
+      )
+    }));
+    return updatedPerdComp;
   },
 
   deletePerdComp: async (id) => {
-    set({ isLoading: true });
-    try {
-      const { error } = await supabase
-        .from('perdcomps')
-        .delete()
-        .eq('id', id);
-      
-      if (error) throw error;
-      
-      set(state => ({
-        perdcomps: state.perdcomps.filter(pc => pc.id !== id),
-        clientPerdComps: state.clientPerdComps.filter(pc => pc.id !== id),
-        selectedPerdComp: state.selectedPerdComp?.id === id ? null : state.selectedPerdComp,
-        isLoading: false
-      }));
-    } catch (error) {
-      set({ error: 'Falha ao deletar PER/DCOMP', isLoading: false });
-      throw error;
-    }
+    await api.delete(`/perdcomps/${id}/`);
+    set(state => ({
+      perdcomps: state.perdcomps.filter(pc => pc.id !== id),
+      selectedPerdComp: state.selectedPerdComp?.id === id ? null : state.selectedPerdComp
+    }));
   },
 
   setSelectedPerdComp: (perdcomp) => set({ selectedPerdComp: perdcomp }),
@@ -191,18 +135,10 @@ export const usePerdCompStore = create<PerdCompState>((set, get) => ({
   searchPerdComps: async (query) => {
     set({ isLoading: true });
     try {
-      const { data, error } = await supabase
-        .from('perdcomps')
-        .select('*')
-        .or(`numero.ilike.%${query}%,imposto.ilike.%${query}%,competencia.ilike.%${query}%`)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      set({ perdcomps: data || [], isLoading: false });
+      const response = await api.get(`/perdcomps/?search=${encodeURIComponent(query)}`);
+      set({ perdcomps: response.data.results || response.data, isLoading: false });
     } catch (error) {
-      set({ error: 'Falha na busca', isLoading: false });
+      set({ error: 'Search failed', isLoading: false });
     }
   },
-
-  setCurrentPage: (page) => set({ currentPage: page }),
 }));

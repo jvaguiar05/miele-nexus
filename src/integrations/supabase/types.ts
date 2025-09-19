@@ -107,59 +107,6 @@ export type Database = {
         }
         Relationships: []
       }
-      perdcomps: {
-        Row: {
-          client_id: string
-          competencia: string
-          created_at: string
-          data_transmissao: string | null
-          id: string
-          imposto: string
-          numero: string
-          observacoes: string | null
-          status: string
-          updated_at: string
-          valor_recebido: number | null
-          valor_solicitado: number
-        }
-        Insert: {
-          client_id: string
-          competencia: string
-          created_at?: string
-          data_transmissao?: string | null
-          id?: string
-          imposto: string
-          numero: string
-          observacoes?: string | null
-          status?: string
-          updated_at?: string
-          valor_recebido?: number | null
-          valor_solicitado?: number
-        }
-        Update: {
-          client_id?: string
-          competencia?: string
-          created_at?: string
-          data_transmissao?: string | null
-          id?: string
-          imposto?: string
-          numero?: string
-          observacoes?: string | null
-          status?: string
-          updated_at?: string
-          valor_recebido?: number | null
-          valor_solicitado?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "perdcomps_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
     }
     Views: {
       [_ in never]: never

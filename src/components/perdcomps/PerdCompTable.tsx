@@ -1,4 +1,4 @@
-import { Edit, Trash2, Eye, MoreVertical } from "lucide-react";
+import { Edit, Trash2, Eye, CheckCircle, XCircle, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,62 +15,34 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { usePerdCompStore } from "@/stores/perdcompStore";
+import { PerdComp } from "@/types/api";
 import { Badge } from "@/components/ui/badge";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { useClientStore } from "@/stores/clientStore";
-import { useEffect, useState } from "react";
-
-interface PerdComp {
-  id: string;
-  client_id: string;
-  numero: string;
-  imposto: string;
-  competencia: string;
-  valor_solicitado: number;
-  valor_recebido: number;
-  status: string;
-  data_transmissao?: string;
-  observacoes?: string;
-}
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface PerdCompTableProps {
   perdcomps: PerdComp[];
   onEdit: (perdcomp: PerdComp) => void;
-  onView: (perdcomp: PerdComp) => void;
 }
 
-export default function PerdCompTable({ perdcomps, onEdit, onView }: PerdCompTableProps) {
+export default function PerdCompTable({ perdcomps, onEdit }: PerdCompTableProps) {
   const { deletePerdComp } = usePerdCompStore();
-  const { clients, fetchClients } = useClientStore();
-  const [clientMap, setClientMap] = useState<Record<string, string>>({});
 
-  useEffect(() => {
-    if (clients.length === 0) {
-      fetchClients();
-    }
-  }, []);
-
-  useEffect(() => {
-    const map: Record<string, string> = {};
-    clients.forEach(client => {
-      map[client.id] = client.razao_social;
-    });
-    setClientMap(map);
-  }, [clients]);
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: number) => {
     if (confirm("Tem certeza que deseja excluir este PER/DCOMP?")) {
       await deletePerdComp(id);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Aprovado": return "default";
-      case "Recusado": return "destructive";
-      case "Em Análise": return "secondary";
-      default: return "outline";
-    }
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
+  const formatDate = (dateString: string) => {
+    return format(new Date(dateString), 'dd/MM/yyyy', { locale: ptBR });
   };
 
   return (
@@ -80,9 +52,9 @@ export default function PerdCompTable({ perdcomps, onEdit, onView }: PerdCompTab
           <TableRow className="hover:bg-transparent">
             <TableHead>Número</TableHead>
             <TableHead>Cliente</TableHead>
-            <TableHead>Imposto</TableHead>
+            <TableHead>Tributo</TableHead>
             <TableHead>Competência</TableHead>
-            <TableHead>Valor Solicitado</TableHead>
+            <TableHead>Valor Pedido</TableHead>
             <TableHead>Valor Recebido</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Transmissão</TableHead>
@@ -98,62 +70,55 @@ export default function PerdCompTable({ perdcomps, onEdit, onView }: PerdCompTab
             </TableRow>
           ) : (
             perdcomps.map((perdcomp) => (
-              <TableRow 
-                key={perdcomp.id} 
-                className="hover:bg-muted/50 cursor-pointer"
-                onClick={() => onView(perdcomp)}
-              >
+              <TableRow key={perdcomp.id} className="hover:bg-muted/50">
                 <TableCell className="font-mono text-sm">
-                  {perdcomp.numero}
+                  {perdcomp.nr_perdcomp}
                 </TableCell>
                 <TableCell className="font-medium">
-                  {clientMap[perdcomp.client_id] || "-"}
+                  {perdcomp.nome}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{perdcomp.imposto}</Badge>
+                  <Badge variant="outline">{perdcomp.tributo_pedido}</Badge>
                 </TableCell>
                 <TableCell>{perdcomp.competencia}</TableCell>
                 <TableCell className="font-medium">
-                  {formatCurrency(perdcomp.valor_solicitado)}
+                  {formatCurrency(perdcomp.valor_pedido)}
                 </TableCell>
                 <TableCell>
                   {formatCurrency(perdcomp.valor_recebido)}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getStatusColor(perdcomp.status)}>
-                    {perdcomp.status}
-                  </Badge>
+                  {perdcomp.recebido ? (
+                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                      <CheckCircle className="w-3 h-3 mr-1" />
+                      Recebido
+                    </Badge>
+                  ) : (
+                    <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+                      <XCircle className="w-3 h-3 mr-1" />
+                      Pendente
+                    </Badge>
+                  )}
                 </TableCell>
-                <TableCell>
-                  {perdcomp.data_transmissao ? formatDate(perdcomp.data_transmissao) : "-"}
-                </TableCell>
+                <TableCell>{formatDate(perdcomp.data_transmissao)}</TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={(e) => {
-                        e.stopPropagation();
-                        onView(perdcomp);
-                      }}>
+                      <DropdownMenuItem onClick={() => onEdit(perdcomp)}>
                         <Eye className="mr-2 h-4 w-4" />
                         Visualizar
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(perdcomp);
-                      }}>
+                      <DropdownMenuItem onClick={() => onEdit(perdcomp)}>
                         <Edit className="mr-2 h-4 w-4" />
                         Editar
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(perdcomp.id);
-                        }}
+                        onClick={() => handleDelete(perdcomp.id)}
                         className="text-destructive"
                       >
                         <Trash2 className="mr-2 h-4 w-4" />

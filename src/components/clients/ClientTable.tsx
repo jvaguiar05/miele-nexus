@@ -30,10 +30,9 @@ interface Client {
 
 interface ClientTableProps {
   onEdit: (client: Client) => void;
-  onView?: (client: Client) => void;
 }
 
-export default function ClientTable({ onEdit, onView }: ClientTableProps) {
+export default function ClientTable({ onEdit }: ClientTableProps) {
   const { clients, deleteClient } = useClientStore();
 
   const handleDelete = async (id: string) => {
@@ -97,7 +96,7 @@ export default function ClientTable({ onEdit, onView }: ClientTableProps) {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onView ? onView(client) : onEdit(client)}>
+                      <DropdownMenuItem onClick={() => onEdit(client)}>
                         <Eye className="mr-2 h-4 w-4" />
                         Visualizar
                       </DropdownMenuItem>

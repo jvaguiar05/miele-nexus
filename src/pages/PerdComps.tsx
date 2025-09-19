@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { Plus, Upload, Download, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,8 @@ interface PerdComp {
 }
 
 export default function PerdCompsPage() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedPerdComp, setSelectedPerdComp] = useState<PerdComp | null>(null);
@@ -55,9 +58,15 @@ export default function PerdCompsPage() {
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchPerdComps(currentPage);
+    if (id) {
+      // If there's an ID in the route, open the detail view
+      setSelectedPerdComp({ id } as PerdComp);
+      setIsDetailOpen(true);
+    } else {
+      fetchPerdComps(currentPage);
+    }
     fetchClients();
-  }, [currentPage]);
+  }, [currentPage, id]);
 
   const handleEdit = (perdcomp: PerdComp) => {
     setSelectedPerdComp(perdcomp);
@@ -65,8 +74,7 @@ export default function PerdCompsPage() {
   };
 
   const handleView = (perdcomp: PerdComp) => {
-    setSelectedPerdComp(perdcomp);
-    setIsDetailOpen(true);
+    navigate(`/perdcomps/${perdcomp.id}`);
   };
 
   const handleAdd = () => {
@@ -260,7 +268,12 @@ export default function PerdCompsPage() {
       </Dialog>
 
       {/* Detail Dialog */}
-      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+      <Dialog open={isDetailOpen} onOpenChange={(open) => {
+        setIsDetailOpen(open);
+        if (!open && id) {
+          navigate('/perdcomps');
+        }
+      }}>
         <DialogContent className="max-w-2xl">
           {selectedPerdComp && (
             <PerdCompDetail

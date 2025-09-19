@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Edit, FileText, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,6 +18,7 @@ interface ClientDetailProps {
 }
 
 export default function ClientDetail({ clientId, onBack, onEdit, onAddPerdComp }: ClientDetailProps) {
+  const navigate = useNavigate();
   const { selectedClient, fetchClientById } = useClientStore();
   const { fetchPerdCompsByClient, clientPerdComps } = usePerdCompStore();
   const [loading, setLoading] = useState(true);
@@ -209,7 +211,11 @@ export default function ClientDetail({ clientId, onBack, onEdit, onAddPerdComp }
           ) : (
             <div className="grid gap-4">
               {clientPerdComps.map((perdcomp) => (
-                <Card key={perdcomp.id} className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <Card 
+                  key={perdcomp.id} 
+                  className="hover:bg-muted/50 transition-colors cursor-pointer"
+                  onClick={() => navigate(`/perdcomps/${perdcomp.id}`)}
+                >
                   <CardContent className="py-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">

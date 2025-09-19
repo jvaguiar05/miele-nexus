@@ -70,7 +70,11 @@ export default function ClientTable({ onEdit, onView }: ClientTableProps) {
             </TableRow>
           ) : (
             clients.map((client) => (
-              <TableRow key={client.id} className="hover:bg-muted/50">
+              <TableRow 
+                key={client.id} 
+                className="hover:bg-muted/50 cursor-pointer"
+                onClick={() => onView ? onView(client) : onEdit(client)}
+              >
                 <TableCell className="font-mono text-sm">
                   {formatCNPJ(client.cnpj)}
                 </TableCell>
@@ -89,7 +93,7 @@ export default function ClientTable({ onEdit, onView }: ClientTableProps) {
                     {client.recuperacao_judicial ? "Rec. Judicial" : "Ativo"}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">

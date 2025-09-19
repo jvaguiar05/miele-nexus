@@ -3,6 +3,7 @@ import { Users, FileText, BarChart3, Settings, TrendingUp, Clock, DollarSign, Fo
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
+import { ActivityTable } from "@/components/activity/ActivityTable";
 
 const navigationCards = [
   {
@@ -164,25 +165,7 @@ export default function Home() {
           transition={{ duration: 0.5, delay: 0.3 }}
           className="mt-8"
         >
-          <Card className="p-6 border-border/50 bg-card/50 backdrop-blur">
-            <h2 className="text-xl font-semibold mb-4">Atividade Recente</h2>
-            <div className="space-y-4">
-              {[
-                { action: "Novo cliente cadastrado", client: "ABC Ltda", time: "há 2 horas" },
-                { action: "PER/DCOMP aprovado", client: "XYZ Corp", time: "há 4 horas" },
-                { action: "Relatório gerado", client: "Tech Solutions", time: "há 6 horas" },
-                { action: "Documento anexado", client: "Global Services", time: "ontem" },
-              ].map((activity, index) => (
-                <div key={index} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
-                  <div>
-                    <p className="font-medium">{activity.action}</p>
-                    <p className="text-sm text-muted-foreground">{activity.client}</p>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{activity.time}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
+          <ActivityTable />
         </motion.div>
       </div>
     </div>

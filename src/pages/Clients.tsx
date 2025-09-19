@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Users, Search, Plus, Filter, Download, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
@@ -31,6 +32,8 @@ interface Client {
 }
 
 export default function Clients() {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { 
     fetchClients, 
     isLoading, 
@@ -47,8 +50,14 @@ export default function Clients() {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   useEffect(() => {
-    fetchClients(currentPage);
-  }, [currentPage]);
+    if (id) {
+      // If there's an ID in the route, open the detail view
+      setSelectedClient({ id } as Client);
+      setIsDetailOpen(true);
+    } else {
+      fetchClients(currentPage);
+    }
+  }, [currentPage, id]);
 
   useEffect(() => {
     if (error) {
@@ -75,8 +84,7 @@ export default function Clients() {
   };
 
   const handleView = (client: Client) => {
-    setSelectedClient(client);
-    setIsDetailOpen(true);
+    navigate(`/clients/${client.id}`);
   };
 
   const handleEdit = (client: Client) => {
@@ -237,7 +245,12 @@ export default function Clients() {
         </Dialog>
 
         {/* Client Detail Dialog */}
-        <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <Dialog open={isDetailOpen} onOpenChange={(open) => {
+          setIsDetailOpen(open);
+          if (!open && id) {
+            navigate('/clients');
+          }
+        }}>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {selectedClient && (
               <ClientDetail

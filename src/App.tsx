@@ -15,6 +15,7 @@ import Home from "./pages/Home";
 import Clients from "./pages/Clients";
 import PerdComps from "./pages/PerdComps";
 import Reports from "./pages/Reports";
+import OTP from "./pages/OTP";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/otp" element={<OTP />} />
             
             {/* Protected routes with layout */}
             <Route element={<AppLayout />}>

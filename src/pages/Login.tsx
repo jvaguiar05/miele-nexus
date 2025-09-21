@@ -31,39 +31,39 @@ type LoginFormData = z.infer<typeof loginSchema>;
 const carouselFeatures = [
   {
     icon: Users,
-    title: "Gestão de Clientes",
-    description: "Controle completo de informações de clientes com histórico detalhado e relatórios personalizados",
-    stats: "500+ clientes ativos"
+    title: "Gestão Tributária Completa",
+    description: "Acompanhe todos os processos fiscais dos seus clientes em uma única plataforma integrada",
+    stats: "Redução de 70% no tempo de análise"
   },
   {
     icon: FileText,
-    title: "PER/DCOMP Automatizado",
-    description: "Geração e controle automatizado de documentos fiscais com validação em tempo real",
-    stats: "1000+ documentos processados"
+    title: "PER/DCOMP Inteligente",
+    description: "Automação completa da geração de PER/DCOMP com validação automática e alertas de inconsistências",
+    stats: "Zero erros de preenchimento"
   },
   {
     icon: BarChart3,
-    title: "Relatórios Inteligentes",
-    description: "Dashboards interativos com análises avançadas e insights em tempo real",
-    stats: "50+ tipos de relatórios"
+    title: "Análise de Créditos Tributários",
+    description: "Identificação automática de oportunidades de recuperação de créditos e compensações fiscais",
+    stats: "R$ 50M+ recuperados"
   },
   {
     icon: Shield,
-    title: "Segurança Avançada",
-    description: "Proteção de dados com criptografia de ponta e autenticação em duas etapas",
-    stats: "100% conformidade LGPD"
+    title: "Compliance Fiscal Garantido",
+    description: "Monitoramento contínuo de mudanças na legislação e aplicação automática de novas regras",
+    stats: "Atualização em tempo real"
   },
   {
     icon: Clock,
-    title: "Suporte 24/7",
-    description: "Equipe especializada disponível para auxiliar em todas as suas necessidades",
-    stats: "< 2h tempo de resposta"
+    title: "Histórico Detalhado",
+    description: "Rastreabilidade completa de todas as operações com linha do tempo de cada processo",
+    stats: "5 anos de histórico online"
   },
   {
     icon: Database,
-    title: "Backup Automático",
-    description: "Seus dados sempre seguros com backups automáticos diários em múltiplas localizações",
-    stats: "99.9% uptime garantido"
+    title: "Integração Contábil",
+    description: "Sincronização automática com sistemas contábeis e importação direta de arquivos SPED",
+    stats: "15+ sistemas integrados"
   }
 ];
 
@@ -303,14 +303,6 @@ export default function Login() {
               <CarouselNext className="static translate-x-0 translate-y-0 bg-background/80 hover:bg-background border-border" />
             </div>
             
-            <div className="text-center mt-8">
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                Miele
-              </h2>
-              <p className="text-sm text-muted-foreground mt-2">
-                Sistema de Gestão Empresarial
-              </p>
-            </div>
           </Carousel>
         </motion.div>
       </div>
